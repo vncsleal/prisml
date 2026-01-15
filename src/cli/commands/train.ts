@@ -6,6 +6,7 @@ import { loadDefinitions } from '../loader';
 import { FeatureProcessor } from '../../engine/processor';
 import { PrisMLModel } from '../../core/types';
 import { PrismaClient } from '@prisma/client';
+import { detectTrainingBackend, getInstallInstructions } from '../../engine/environment';
 
 interface TrainOptions {
   file: string;
@@ -97,27 +98,66 @@ async function trainSingleModel(model: PrisMLModel) {
     const dataPath = path.join(tempDir, `${model.name}_data.json`);
     fs.writeFileSync(dataPath, JSON.stringify(trainingData, null, 2));
 
-    // 5. Train with Python subprocess
-    console.log(chalk.gray(`   Training model with Python (${model.config?.algorithm || 'RandomForest'})...`));
+    // 5. Detect training backend and execute
+    const backend = detectTrainingBackend();
+    console.log(chalk.gray(`   Training with ${backend} backend (${model.config?.algorithm || 'RandomForest'})...`));
     
     const outDir = path.join(process.cwd(), 'prisml', 'generated');
     if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
     
     const artifactPath = path.join(outDir, `${model.name}.onnx`);
-    const scriptPath = path.join(process.cwd(), 'scripts', 'train.py');
-    
     const algorithm = model.config?.algorithm || 'RandomForest';
     const minAccuracy = model.config?.minAccuracy || 0.7;
     const testSplit = model.config?.testSplit || 0.2;
 
     try {
-      // Call Python training script
-      const pythonCmd = `python3 "${scriptPath}" --input "${dataPath}" --output "${artifactPath}" --algorithm ${algorithm} --min-accuracy ${minAccuracy} --test-split ${testSplit}`;
-      
-      execSync(pythonCmd, {
-        stdio: 'inherit', // Show Python output in real-time
-        cwd: process.cwd()
-      });
+      if (backend === 'docker') {
+        // Docker-based training (recommended)
+        const tmpDirAbs = path.resolve(process.cwd(), '.prisml', 'tmp');
+        const outDirAbs = path.resolve(process.cwd(), 'prisml', 'generated');
+        
+        // Normalize paths for cross-platform compatibility
+        const dataPathInContainer = `/data/${path.basename(dataPath)}`;
+        const outputPathInContainer = `/output/${model.name}.onnx`;
+        
+        const dockerCmd = `docker run --rm \
+          -v "${tmpDirAbs}:/data" \
+          -v "${outDirAbs}:/output" \
+          prisml/trainer:latest \
+          --input "${dataPathInContainer}" \
+          --output "${outputPathInContainer}" \
+          --algorithm ${algorithm} \
+          --min-accuracy ${minAccuracy} \
+          --test-split ${testSplit}`;
+        
+        execSync(dockerCmd, {
+          stdio: 'inherit',
+          cwd: process.cwd()
+        });
+        
+      } else if (backend === 'local') {
+        // Local Python training
+        const scriptPath = path.join(process.cwd(), 'scripts', 'train.py');
+        
+        const pythonCmd = `python3 "${scriptPath}" \
+          --input "${dataPath}" \
+          --output "${artifactPath}" \
+          --algorithm ${algorithm} \
+          --min-accuracy ${minAccuracy} \
+          --test-split ${testSplit}`;
+        
+        execSync(pythonCmd, {
+          stdio: 'inherit',
+          cwd: process.cwd()
+        });
+        
+      } else if (backend === 'js') {
+        // Pure JS fallback (not implemented yet)
+        console.log(chalk.yellow('\n   ⚠️  Pure JS training is not implemented yet.'));
+        console.log(chalk.gray('   Please install Docker or Python to train models:'));
+        console.log(getInstallInstructions('docker'));
+        throw new Error('Training backend not available. Install Docker or Python.');
+      }
 
       console.log(chalk.green(`   ✔ Training Complete!`));
       
@@ -125,7 +165,10 @@ async function trainSingleModel(model: PrisMLModel) {
       fs.unlinkSync(dataPath);
 
     } catch (error: any) {
-      throw new Error(`Python training failed. Ensure Python 3 and dependencies are installed.\nRun: pip install -r scripts/requirements.txt`);
+      if (error.message.includes('Training backend not available')) {
+        throw error;
+      }
+      throw new Error(`Training failed: ${error.message}\n\n${getInstallInstructions(backend)}`);
     }
 
   } catch (err: any) {
