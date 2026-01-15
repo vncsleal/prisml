@@ -1,0 +1,61 @@
+{
+  "name": "prisml",
+  "version": "1.0.0",
+  "description": "Type-safe ML for Prisma - Train and deploy ML models directly from your database schema",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "prisml": "dist/cli/index.js"
+  },
+  "directories": {
+    "doc": "docs",
+    "example": "examples"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "docker:build": "./scripts/build-docker.sh",
+    "docker:push": "docker push prisml/trainer:latest && docker push prisml/trainer:1.0.0"
+  },
+  "keywords": [
+    "prisma",
+    "ml",
+    "machine-learning",
+    "onnx",
+    "scikit-learn",
+    "typescript",
+    "database"
+  ],
+  "author": "PrisML Team",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^25.0.8",
+    "prisma": "5.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/client": "5.8.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "onnxruntime-node": "^1.23.2",
+    "ora": "^9.0.0",
+    "zod": "^4.3.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prisml/prisml"
+  },
+  "files": [
+    "dist/",
+    "scripts/",
+    "Dockerfile.trainer",
+    "README.md",
+    "LICENSE"
+  ]
+}
