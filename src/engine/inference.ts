@@ -72,7 +72,8 @@ export class ONNXInferenceEngine {
       // 4. Extract output
       // For binary classification: output shape [1, 1] or [1, 2]
       // For regression: output shape [1, 1]
-      const outputTensor = results.output || results.label || results.probabilities;
+      // Try common output names: sklearn exports use 'variable', others use 'output', 'label', or 'probabilities'
+      const outputTensor = results.variable || results.output || results.label || results.probabilities;
       
       if (!outputTensor) {
         throw new Error('Model output not found. Check ONNX export configuration.');
@@ -122,7 +123,8 @@ export class ONNXInferenceEngine {
       const feeds = { input: inputTensor };
       const results = await this.session.run(feeds);
 
-      const outputTensor = results.output || results.label || results.probabilities;
+      // Try common output names: sklearn exports use 'variable', others use 'output', 'label', or 'probabilities'
+      const outputTensor = results.variable || results.output || results.label || results.probabilities;
       
       if (!outputTensor) {
         throw new Error('Model output not found. Check ONNX export configuration.');

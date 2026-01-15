@@ -130,7 +130,8 @@ def export_to_onnx(
     model,
     output_path: str,
     feature_names: List[str],
-    metadata: Dict
+    metadata: Dict,
+    task_type: str = 'classification'
 ):
     """
     Convert scikit-learn model to ONNX format.
@@ -140,14 +141,18 @@ def export_to_onnx(
     # Define input type for ONNX
     initial_type = [('input', FloatTensorType([None, num_features]))]
     
+    # Determine ONNX conversion options based on task type
+    onnx_options = None
+    if task_type == 'classification':
+        # For classifiers, disable zipmap for cleaner output
+        onnx_options = {id(model): {'zipmap': False}}
+    
     # Convert to ONNX
     onnx_model = convert_sklearn(
         model,
         initial_types=initial_type,
         target_opset=12,
-        options={
-            'zipmap': False  # Disable zipmap for cleaner output
-        }
+        options=onnx_options
     )
     
     # Save ONNX model
@@ -206,7 +211,7 @@ def main():
             'trained_at': None  # Will be set by TypeScript
         }
         
-        export_to_onnx(model, args.output, feature_names, export_metadata)
+        export_to_onnx(model, args.output, feature_names, export_metadata, task_type)
         
         print()
         print("✅ Training complete!")

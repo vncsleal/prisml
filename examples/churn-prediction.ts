@@ -14,7 +14,7 @@ import { PrismaClient, User } from '@prisma/client';
 // 1. Define ML Model (features + config)
 export const churnPredictor = defineModel<User>({
   target: 'User',
-  output: 'willChurn', // Binary classification: 0 or 1
+  output: 'isChurned', // This is the label we're predicting
   
   features: {
     // Numeric features based on actual User schema
@@ -30,12 +30,6 @@ export const churnPredictor = defineModel<User>({
     totalSpent: {
       type: 'Float',
       resolve: (user: User) => user.totalSpent || 0
-    },
-    
-    // Boolean features (auto-encoded to 0/1)
-    isChurned: {
-      type: 'Boolean',
-      resolve: (user: User) => user.isChurned
     }
   },
   
@@ -54,6 +48,8 @@ export const churnPredictor = defineModel<User>({
 //   - Export trained model to prisml/generated/churnPredictor.onnx
 
 // 3. Real-time Prediction (Runtime)
+// Uncomment this function after training to test predictions
+/*
 async function predictChurnRisk() {
   const prisma = new PrismaClient();
   
@@ -97,5 +93,6 @@ async function predictChurnRisk() {
   }
 }
 
-// Run prediction
-predictChurnRisk().catch(console.error);
+// Uncomment to run prediction after training
+// predictChurnRisk().catch(console.error);
+*/
