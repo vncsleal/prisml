@@ -170,8 +170,8 @@ export const ChurnModel = defineModel({
 - ✅ npm publish (published as `@vncsleal/prisml@1.0.0` on npm; install with `npm install @vncsleal/prisml`)
 - ✅ Docker Hub push of trainer image (multi-arch: `docker pull vncsleal/prisml-trainer:1.0.0` or `:latest`)
 - ✅ Platform matrix + Known Issues doc ([PLATFORM_COMPATIBILITY.md](./PLATFORM_COMPATIBILITY.md) — Node versions, OS support, serverless caveats, WebAssembly fallback)
-- ⏳ CI pipeline for tests + publish gate (GitHub Actions)
-- ⏳ Security hygiene: add SECURITY.md, review dependency updates
+- ✅ CI pipeline for tests + publish gate (GitHub Actions test.yml with Node 18/20 matrix)
+- ✅ Security hygiene: add SECURITY.md (vulnerability reporting: security@iamvini.co), CHANGELOG.md (v1.0.0 release notes)
 
 ### Nice-to-Have (Post-Launch)
 - Performance benchmarks and memory profiling
