@@ -15,6 +15,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build",
     "docker:build": "./scripts/build-docker.sh",
     "docker:push": "docker push prisml/trainer:latest && docker push prisml/trainer:1.0.0"
   },

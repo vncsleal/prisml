@@ -3,10 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { loadDefinitions } from '../loader';
-import { FeatureProcessor } from '../../engine/processor';
 import { PrisMLModel } from '../../core/types';
-import { PrismaClient } from '@prisma/client';
 import { detectTrainingBackend, getInstallInstructions } from '../../engine/environment';
+import { PrismaDataExtractor } from '../extractor';
 
 interface TrainOptions {
   file: string;
@@ -40,52 +39,49 @@ async function trainSingleModel(model: PrisMLModel) {
   console.log(chalk.blue(`
 🤖 Processing Model: ${chalk.bold(model.name)} (Target: ${model.target})`));
   
-  const prisma = new PrismaClient();
+  const extractor = new PrismaDataExtractor();
 
   try {
-    // 1. Initialize Processor
-    const processor = new FeatureProcessor(model);
+    // 1. Test database connection
+    console.log(chalk.gray(`   Testing database connection...`));
+    const connected = await extractor.testConnection();
+    if (!connected) {
+      throw new Error('Could not connect to database. Check DATABASE_URL in .env');
+    }
+    console.log(chalk.green(`   ✔ Database connected`));
 
-    // 2. Fetch Data
-    console.log(chalk.gray(`   Connecting to database...`));
+    // 2. Check available data
+    const availableCount = await extractor.getAvailableCount(model);
+    console.log(chalk.gray(`   Available training samples: ${availableCount}`));
     
-    // Dynamic delegate access: prisma.user, prisma.post, etc.
-    const delegate = (prisma as any)[model.target.toLowerCase()] || (prisma as any)[model.target];
-    
-    if (!delegate) {
-      throw new Error(`Prisma Client has no model named '${model.target}'. Check your schema.`);
+    if (availableCount === 0) {
+      throw new Error(`No data found in ${model.target} table`);
     }
 
-    console.log(chalk.gray(`   Fetching rows from table '${model.target}'...`));
-    const startFetch = Date.now();
-    const entities = await delegate.findMany();
-    const fetchTime = Date.now() - startFetch;
-    console.log(chalk.green(`   ✔ Fetched ${entities.length} rows in ${fetchTime}ms`));
-
-    // 3. Extract Features
-    console.log(chalk.gray(`   Extracting features...`));
+    // 3. Extract training data using new extractor
     const startExtract = Date.now();
-    const dataset = await processor.processBatch(entities);
+    const dataset = await extractor.extractTrainingData(model, {
+      batchSize: 1000
+    });
     const extractTime = Date.now() - startExtract;
-    console.log(chalk.green(`   ✔ Extracted ${dataset.length} vectors in ${extractTime}ms`));
+    
+    console.log(chalk.green(`   ✔ Extracted ${dataset.labels.length} samples in ${extractTime}ms`));
+    console.log(chalk.gray(`   Features: ${dataset.featureNames.join(', ')}`));
 
     // 4. Prepare Training Data for Python
     console.log(chalk.gray(`   Preparing training data...`));
     
-    // Extract labels from entities (assumes output field exists)
-    const labels = entities.map((entity: any) => entity[model.output]);
-    
     // Determine task type (classification vs regression)
-    const taskType = typeof labels[0] === 'number' && labels.every((l: any) => l === 0 || l === 1)
+    const taskType = dataset.labels.every((l: any) => l === 0 || l === 1)
       ? 'classification'
       : 'regression';
 
     const trainingData = {
-      features: dataset,
-      labels,
+      features: dataset.features,
+      labels: dataset.labels,
       metadata: {
         model_name: model.name,
-        feature_names: Object.keys(model.features).sort(),
+        feature_names: dataset.featureNames,
         task_type: taskType,
         target_field: model.output,
       }
@@ -174,6 +170,6 @@ async function trainSingleModel(model: PrisMLModel) {
   } catch (err: any) {
     console.error(chalk.red(`   ❌ Failed to process model: ${err.message}`));
   } finally {
-    await prisma.$disconnect();
+    await extractor.disconnect();
   }
 }

@@ -77,9 +77,13 @@ async function testExtension() {
     }
 
     console.log('\nPrediction Result:');
-    console.log(`  Predicted Churn: ${userWithML._ml.churnProbability?.toFixed(4)}`);
-    console.log(`  Actual Churn: ${userWithML.isChurned ? 1 : 0}`);
-    console.log(`  Accuracy: ${Math.abs((userWithML._ml.churnProbability || 0) - (userWithML.isChurned ? 1 : 0)) < 0.5 ? '✅' : '❌'}\n`);
+    const prediction = userWithML._ml.churnProbability;
+    const predictedClass = typeof prediction === 'number' ? prediction : 0;
+    const actualClass = userWithML.isChurned ? 1 : 0;
+    
+    console.log(`  Predicted: ${prediction} (Class: ${predictedClass})`);
+    console.log(`  Actual: ${actualClass}`);
+    console.log(`  Match: ${predictedClass === actualClass ? '✅' : '❌'}\n`);
 
     // Test 2: Batch predictions (using withML for each)
     console.log('📊 Test 2: Batch Predictions (10 users)');
@@ -101,7 +105,8 @@ async function testExtension() {
         continue;
       }
       
-      const predicted = (u._ml?.churnProbability || 0) > 0.5 ? 1 : 0;
+      const prediction = u._ml?.churnProbability || 0;
+      const predicted = typeof prediction === 'number' ? prediction : 0;
       const actual = isChurned ? 1 : 0;
       const isCorrect = predicted === actual;
       if (isCorrect) correct++;
