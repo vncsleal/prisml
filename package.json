@@ -1,5 +1,5 @@
 {
-  "name": "prisml",
+  "name": "@vncsleal/prisml",
   "version": "1.0.0",
   "description": "Type-safe ML for Prisma - Train and deploy ML models directly from your database schema",
   "main": "dist/index.js",
@@ -58,7 +58,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/prisml/prisml"
+    "url": "https://github.com/vncsleal/prisml"
   },
   "files": [
     "dist/",

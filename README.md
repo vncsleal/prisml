@@ -13,7 +13,7 @@ Define features in TypeScript, train with Python/scikit-learn, deploy with ONNX 
 
 ### 1. Install
 ```bash
-npm install prisml
+npm install @vncsleal/prisml
 ```
 
 ### 2. Define Model
@@ -58,7 +58,7 @@ Automatically extracts data from your Prisma database and trains the model.
 **Single Prediction:**
 ```typescript
 import { PrismaClient } from '@prisma/client';
-import { prisml } from 'prisml';
+import { prisml } from '@vncsleal/prisml';
 import { churnModel } from './ml/churn';
 
 const prisma = new PrismaClient().$extends(prisml([churnModel]));
@@ -104,6 +104,7 @@ users.forEach(user => {
 ## Documentation
 
 - **[API Reference](./docs/README.md)** - Complete API and usage guide
+- **[Platform Compatibility](./docs/PLATFORM_COMPATIBILITY.md)** - OS/Node version support matrix, serverless & edge runtime guidance
 - **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Architecture](./docs/ARCHITECTURE.md)** - System design and technical details
 - **[Roadmap](./docs/ROADMAP.md)** - Implementation status and future plans

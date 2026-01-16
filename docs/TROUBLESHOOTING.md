@@ -477,7 +477,7 @@ jobs:
 
 If you're still stuck:
 
-1. Check [GitHub Issues](https://github.com/prisml/prisml/issues)
+1. Check [GitHub Issues](https://github.com/vncsleal/prisml/issues)
 2. Review [docs/README.md](./README.md) for API reference
 3. Open a new issue with:
    - Error message (full stack trace)

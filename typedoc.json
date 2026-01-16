@@ -8,8 +8,8 @@
   "excludeInternal": true,
   "readme": "README.md",
   "navigationLinks": {
-    "GitHub": "https://github.com/prisml/prisml",
-    "Documentation": "https://github.com/prisml/prisml/tree/main/docs"
+    "GitHub": "https://github.com/vncsleal/prisml",
+    "Documentation": "https://github.com/vncsleal/prisml/tree/main/docs"
   },
   "categorizeByGroup": true,
   "categoryOrder": [
