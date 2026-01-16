@@ -1,23 +1,30 @@
 /**
- * Example: Using PrisML with real ONNX inference
+ * Example: Churn Prediction Model
  * 
- * This demonstrates the complete workflow:
+ * Predicts the likelihood that a user will churn based on their
+ * login activity and spending patterns.
+ * 
+ * Workflow:
  * 1. Define features in TypeScript
- * 2. Train model with Python subprocess
+ * 2. Train model: npx prisml train -f examples/churn-prediction.ts
  * 3. Run real-time predictions with ONNX
  */
 
-import { defineModel } from '../src/core/types';
+import { defineModel } from '../src';
 import { ONNXInferenceEngine } from '../src/engine/inference';
 import { PrismaClient, User } from '@prisma/client';
 
-// 1. Define ML Model (features + config)
+/**
+ * Churn Prediction Model
+ * 
+ * Target: User table
+ * Output: isChurned (boolean converted to 0/1)
+ */
 export const churnPredictor = defineModel<User>({
   target: 'User',
-  output: 'isChurned', // This is the label we're predicting
+  output: 'isChurned',
   
   features: {
-    // Numeric features based on actual User schema
     daysSinceLastLogin: {
       type: 'Int',
       resolve: (user: User) => {
@@ -40,14 +47,20 @@ export const churnPredictor = defineModel<User>({
   }
 });
 
-// 2. Training (CLI command)
-// Run: npx prisml train --file examples/churn-prediction.ts
-// This will:
-//   - Extract features from all User records
-//   - Call scripts/train.py with the data
-//   - Export trained model to prisml/generated/churnPredictor.onnx
+churnPredictor.name = 'churnPredictor';
 
-// 3. Real-time Prediction (Runtime)
+/**
+ * Training:
+ * npx prisml train -f examples/churn-prediction.ts
+ * 
+ * This will:
+ * - Extract features from all User records in database
+ * - Train RandomForest model with scikit-learn
+ * - Export ONNX model to prisml/generated/churnPredictor.onnx
+ */
+
+/**
+ * Usage: Real-time Prediction
 // Uncomment this function after training to test predictions
 /*
 async function predictChurnRisk() {

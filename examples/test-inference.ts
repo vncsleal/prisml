@@ -1,25 +1,24 @@
 /**
- * Test ONNX Inference with trained model
+ * Test: ONNX Inference Engine
+ * 
+ * Tests direct ONNX inference without Prisma extension.
+ * Useful for debugging and performance testing.
  */
 
 import { ONNXInferenceEngine } from '../src/engine/inference';
 import { PrismaClient } from '@prisma/client';
-import { churnPredictor } from './churn-prediction';
+import { churnPredictor } from './churn-prediction/model';
 
 async function testInference() {
   const prisma = new PrismaClient();
-  
-  // Set the model name (normally done by loader)
-  churnPredictor.name = 'churnPredictor';
-  
   const engine = new ONNXInferenceEngine(churnPredictor);
   
   try {
-    console.log(' Testing ONNX Inference...\n');
+    console.log('Testing ONNX Inference...\n');
     
     // Initialize engine (loads ONNX model)
     await engine.initialize();
-    console.log('✓ Model loaded\n');
+    console.log('Model loaded\n');
     
     // Get a user from database
     const user = await prisma.user.findFirst();
@@ -45,7 +44,7 @@ async function testInference() {
     console.log(`Accuracy: ${(1 - Math.abs(prediction - (user.isChurned ? 1 : 0))).toFixed(4)}`);
     
     // Batch test
-    console.log('\n Batch Prediction Test...\n');
+    console.log('\nBatch Prediction Test...\n');
     const users = await prisma.user.findMany({ take: 10 });
     const predictions = await engine.predictBatch(users);
     
@@ -54,10 +53,10 @@ async function testInference() {
       console.log(`  User ${u.id}: Predicted=${predictions[idx].toFixed(2)}, Actual=${u.isChurned ? 1 : 0}`);
     });
     
-    console.log('\n Inference test complete!');
+    console.log('\nInference test complete!');
     
   } catch (error: any) {
-    console.error(' Error:', error.message);
+    console.error('Error:', error.message);
   } finally {
     await engine.dispose();
     await prisma.$disconnect();

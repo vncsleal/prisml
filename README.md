@@ -87,9 +87,9 @@ if (user._ml.churnProbability > 0.8) {
 
 ## Examples
 
-- **[Churn Prediction](./examples/churn-prediction.ts)** - Basic classification example
+- **[Churn Prediction](./examples/churn-prediction/)** - Basic classification example
 - **[Fraud Detection](./examples/fraud-detection/)** - Advanced e-commerce fraud model
-- **[Extension API](./examples/test-extension.ts)** - Testing the Prisma extension
+- **[Test Files](./examples/)** - Extension and inference testing utilities
 
 ## Training Environment
 

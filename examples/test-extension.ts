@@ -1,10 +1,12 @@
 /**
- * E2E Test: Prisma Extension API
+ * Test: Prisma Extension API
  * 
- * Tests the complete workflow:
+ * Tests the extension-based workflow:
  * 1. Define model with features
- * 2. Train model (generates ONNX)
- * 3. Use Prisma extension to query predictions
+ * 2. Train model: npx prisml train -f examples/churn-prediction.ts
+ * 3. Query predictions using prisma.model.withML()
+ * 
+ * This is the recommended production approach.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -16,7 +18,7 @@ const churnPredictor = defineModel({
   output: 'churnProbability',
   features: {
     daysSinceLastLogin: {
-      type: 'Float' as const,
+      type: 'Float',
       resolve: (user: any) => {
         const now = new Date();
         const lastLogin = new Date(user.lastLogin);
@@ -24,7 +26,7 @@ const churnPredictor = defineModel({
       }
     },
     totalSpent: {
-      type: 'Float' as const,
+      type: 'Float',
       resolve: (user: any) => user.totalSpent
     }
   },
@@ -38,7 +40,7 @@ const churnPredictor = defineModel({
 churnPredictor.name = 'churnPredictor';
 
 async function testExtension() {
-  console.log(' Testing PrisML Extension API...\n');
+  console.log('Testing PrisML Extension API...\n');
 
   // Create Prisma client with PrisML extension
   const prisma = new PrismaClient().$extends(
@@ -47,13 +49,13 @@ async function testExtension() {
 
   try {
     // Test 1: Single prediction via extension
-    console.log(' Test 1: Single User Prediction');
+    console.log('Test 1: Single User Prediction');
     const user = await prisma.user.findFirst({
       where: { id: 501 }
     });
 
     if (!user) {
-      console.error(' Test user not found (ID: 501)');
+      console.error('Test user not found (ID: 501)');
       return;
     }
 
@@ -72,7 +74,7 @@ async function testExtension() {
     });
 
     if (!userWithML || !userWithML._ml) {
-      console.error(' Extension did not return _ml field');
+      console.error('Extension did not return _ml field');
       return;
     }
 
@@ -86,7 +88,7 @@ async function testExtension() {
     console.log(`  Match: ${predictedClass === actualClass ? '' : ''}\n`);
 
     // Test 2: Batch predictions (using withML for each)
-    console.log(' Test 2: Batch Predictions (10 users)');
+    console.log('Test 2: Batch Predictions (10 users)');
     const userIds = await prisma.user.findMany({
       take: 10,
       skip: 1,  // Skip the first user we already tested
@@ -116,10 +118,10 @@ async function testExtension() {
 
     console.log(`\nBatch Accuracy: ${(correct / userIds.length * 100).toFixed(1)}% (${correct}/${userIds.length})`);
 
-    console.log('\n Extension API test complete!\n');
+    console.log('\nExtension API test complete!\n');
 
   } catch (error: any) {
-    console.error(' Test failed:', error.message);
+    console.error('Test failed:', error.message);
     console.error(error.stack);
   } finally {
     await prisma.$disconnect();
