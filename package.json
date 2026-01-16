@@ -18,6 +18,8 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "docs": "typedoc",
+    "docs:serve": "npx serve docs/api",
     "prepublishOnly": "npm run build",
     "docker:build": "./scripts/build-docker.sh",
     "docker:push": "docker push prisml/trainer:latest && docker push prisml/trainer:1.0.0"
@@ -39,6 +41,7 @@
     "@vitest/ui": "^4.0.17",
     "prisma": "5.8.1",
     "ts-node": "^10.9.2",
+    "typedoc": "^0.28.16",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
   },

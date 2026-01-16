@@ -1,0 +1,24 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts"],
+  "out": "docs/api",
+  "plugin": [],
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "readme": "README.md",
+  "navigationLinks": {
+    "GitHub": "https://github.com/prisml/prisml",
+    "Documentation": "https://github.com/prisml/prisml/tree/main/docs"
+  },
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "Core",
+    "Extension",
+    "Engine",
+    "Errors",
+    "*"
+  ],
+  "sort": ["source-order"],
+  "cleanOutputDir": true
+}

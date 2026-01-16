@@ -49,18 +49,78 @@ export interface TrainingConfig {
 
 /**
  * The PrisML Model Definition.
- * This is what the user exports from their `ml.ts` file.
+ * 
+ * Defines a machine learning model that can be trained on Prisma data
+ * and used for real-time predictions.
+ * 
+ * @example
+ * ```typescript
+ * const churnModel = defineModel({
+ *   target: 'User',
+ *   output: 'churnProbability',
+ *   features: {
+ *     daysSinceLastLogin: {
+ *       type: 'Int',
+ *       resolve: (user) => {
+ *         const now = new Date();
+ *         return Math.floor((now - user.lastLogin) / 86400000);
+ *       }
+ *     }
+ *   },
+ *   config: {
+ *     algorithm: 'RandomForest',
+ *     minAccuracy: 0.75
+ *   }
+ * });
+ * ```
+ * 
+ * @template T - The Prisma model type (e.g., User, Order)
  */
 export interface PrisMLModel<T = any> {
-  name: string; // The export name (auto-assigned usually)
-  target: string; // The Prisma Model name (e.g. "User")
-  output: string; // The prediction field name (e.g. "churnRisk")
+  /** The unique identifier for this model (auto-assigned from export name) */
+  name: string;
+  /** The Prisma model name this prediction targets (e.g., 'User', 'Order') */
+  target: string;
+  /** The field name where predictions will be stored (e.g., 'churnProbability') */
+  output: string;
+  /** Feature definitions that extract values from entities */
   features: Record<string, FeatureDefinition<T>>;
+  /** Training configuration options */
   config?: TrainingConfig;
 }
 
 /**
- * Helper to define a model with type inference.
+ * Helper function to define a PrisML model with full type inference.
+ * 
+ * Creates a typed model definition that can be trained and used for predictions.
+ * The model name will be automatically assigned from the export variable name.
+ * 
+ * @example
+ * ```typescript
+ * // Define a churn prediction model
+ * export const churnPredictor = defineModel<User>({
+ *   target: 'User',
+ *   output: 'churnProbability',
+ *   features: {
+ *     daysSinceLastLogin: {
+ *       type: 'Int',
+ *       resolve: (user) => calculateDaysSince(user.lastLogin)
+ *     },
+ *     totalSpent: {
+ *       type: 'Float',
+ *       resolve: (user) => user.totalSpent || 0
+ *     }
+ *   },
+ *   config: {
+ *     algorithm: 'RandomForest',
+ *     minAccuracy: 0.75
+ *   }
+ * });
+ * ```
+ * 
+ * @template T - The Prisma model type for type-safe feature resolution
+ * @param definition - Model configuration excluding the auto-assigned name
+ * @returns A complete PrisML model definition ready for training
  */
 export function defineModel<T>(definition: Omit<PrisMLModel<T>, 'name'>): PrisMLModel<T> {
   return {

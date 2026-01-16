@@ -80,9 +80,16 @@ if (user._ml.churnProbability > 0.8) {
 ## Documentation
 
 - **[API Reference](./docs/README.md)** - Complete API and usage guide
+- **[Troubleshooting](./docs/TROUBLESHOOTING.md)** - Common issues and solutions
 - **[Architecture](./docs/ARCHITECTURE.md)** - System design and technical details
 - **[Roadmap](./docs/ROADMAP.md)** - Implementation status and future plans
 - **[Product Requirements](./docs/PRD.md)** - Product vision and requirements
+
+## Examples
+
+- **[Churn Prediction](./examples/churn-prediction.ts)** - Basic classification example
+- **[Fraud Detection](./examples/fraud-detection/)** - Advanced e-commerce fraud model
+- **[Extension API](./examples/test-extension.ts)** - Testing the Prisma extension
 
 ## Training Environment
 

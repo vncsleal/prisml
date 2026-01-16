@@ -12,6 +12,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Documentation (generated)
+docs/api/
+
 # Generated artifacts
 prisml/generated/
 *.onnx
