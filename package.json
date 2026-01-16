@@ -14,7 +14,10 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
     "prepublishOnly": "npm run build",
     "docker:build": "./scripts/build-docker.sh",
     "docker:push": "docker push prisml/trainer:latest && docker push prisml/trainer:1.0.0"
@@ -33,9 +36,11 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/node": "^25.0.8",
+    "@vitest/ui": "^4.0.17",
     "prisma": "5.8.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.17"
   },
   "dependencies": {
     "@prisma/client": "5.8.1",
