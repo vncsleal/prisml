@@ -30,7 +30,7 @@ export async function trainCommand(options: TrainOptions) {
 
   } catch (error: any) {
     console.error(chalk.red(`
-❌ Fatal Error: ${error.message}`));
+ Fatal Error: ${error.message}`));
     process.exit(1);
   }
 }
@@ -168,7 +168,7 @@ async function trainSingleModel(model: PrisMLModel) {
     }
 
   } catch (err: any) {
-    console.error(chalk.red(`   ❌ Failed to process model: ${err.message}`));
+    console.error(chalk.red(`    Failed to process model: ${err.message}`));
   } finally {
     await extractor.disconnect();
   }

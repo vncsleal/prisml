@@ -214,13 +214,13 @@ def main():
         export_to_onnx(model, args.output, feature_names, export_metadata, task_type)
         
         print()
-        print("✅ Training complete!")
+        print(" Training complete!")
         
         # Return success with metrics
         sys.exit(0)
         
     except Exception as e:
-        print(f"\n❌ Training failed: {str(e)}", file=sys.stderr)
+        print(f"\n Training failed: {str(e)}", file=sys.stderr)
         sys.exit(1)
 
 

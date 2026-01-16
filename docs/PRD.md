@@ -28,14 +28,14 @@ It rejects the traditional "Python Sidecar" architecture in favor of a strictly 
 ## 3. Core Philosophy & Constraints
 
 ### 3.1 The "No-Go" List (Strict Bounds)
-*   ❌ **No Deep Learning (V1):** We will not support large LLMs or Vision models in Core.
-*   ❌ **No Online Learning:** Models are immutable artifacts generated at build time. No "learning on the fly."
-*   ❌ **No Python Runtime:** The production app must run 100% in Node.js. Python is used only for the build-step (hidden from the user via Docker/CLI).
+*   **No Deep Learning (V1):** We will not support large LLMs or Vision models in Core.
+*   **No Online Learning:** Models are immutable artifacts generated at build time. No "learning on the fly."
+*   **No Python Runtime:** The production app must run 100% in Node.js. Python is used only for the build-step (hidden from the user via Docker/CLI).
 
 ### 3.2 The "Must-Have" List
-*   ✅ **Evaluation Gates:** `prisml push` must fail if the model accuracy drops below a defined threshold.
-*   ✅ **Zero-Infra Runtime:** Inference must be a singleton `onnxruntime` instance sharing the App's event loop.
-*   ✅ **Type Safety:** Feature inputs must be validated against the Prisma Schema at compile time.
+*   **Evaluation Gates:** `prisml push` must fail if the model accuracy drops below a defined threshold.
+*   **Zero-Infra Runtime:** Inference must be a singleton `onnxruntime` instance sharing the App's event loop.
+*   **Type Safety:** Feature inputs must be validated against the Prisma Schema at compile time.
 
 ---
 

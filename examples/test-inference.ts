@@ -15,7 +15,7 @@ async function testInference() {
   const engine = new ONNXInferenceEngine(churnPredictor);
   
   try {
-    console.log('🔮 Testing ONNX Inference...\n');
+    console.log(' Testing ONNX Inference...\n');
     
     // Initialize engine (loads ONNX model)
     await engine.initialize();
@@ -45,7 +45,7 @@ async function testInference() {
     console.log(`Accuracy: ${(1 - Math.abs(prediction - (user.isChurned ? 1 : 0))).toFixed(4)}`);
     
     // Batch test
-    console.log('\n📊 Batch Prediction Test...\n');
+    console.log('\n Batch Prediction Test...\n');
     const users = await prisma.user.findMany({ take: 10 });
     const predictions = await engine.predictBatch(users);
     
@@ -54,10 +54,10 @@ async function testInference() {
       console.log(`  User ${u.id}: Predicted=${predictions[idx].toFixed(2)}, Actual=${u.isChurned ? 1 : 0}`);
     });
     
-    console.log('\n✅ Inference test complete!');
+    console.log('\n Inference test complete!');
     
   } catch (error: any) {
-    console.error('❌ Error:', error.message);
+    console.error(' Error:', error.message);
   } finally {
     await engine.dispose();
     await prisma.$disconnect();

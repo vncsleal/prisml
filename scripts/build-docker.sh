@@ -11,7 +11,7 @@ docker build \
   -t prisml/trainer:1.0.0 \
   .
 
-echo "✅ Docker image built successfully!"
+echo " Docker image built successfully!"
 echo ""
 echo "Tagged as:"
 echo "  - prisml/trainer:latest"

@@ -31,7 +31,7 @@ async function main() {
     data: users
   });
 
-  console.log('✅ Successfully seeded 500 users.');
+  console.log(' Successfully seeded 500 users.');
 }
 
 main()

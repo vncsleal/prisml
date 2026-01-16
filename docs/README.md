@@ -109,17 +109,17 @@ Fetches entity with ML predictions in `_ml` namespace.
 
 ### Best Practices
 
-✅ **Pure functions**
+**Pure functions**
 ```typescript
 resolve: (user) => user.totalSpent
 ```
 
-✅ **Handle nulls**
+**Handle nulls**
 ```typescript
 resolve: (user) => user.orderCount || 0
 ```
 
-✅ **Deterministic**
+**Deterministic**
 ```typescript
 resolve: (user) => {
   const REFERENCE_DATE = new Date('2026-01-01');
@@ -127,7 +127,7 @@ resolve: (user) => {
 }
 ```
 
-❌ **Avoid side effects**
+**Avoid side effects**
 ```typescript
 resolve: (user) => {
   console.log(user.id); // Don't do this
@@ -135,7 +135,7 @@ resolve: (user) => {
 }
 ```
 
-❌ **Avoid non-deterministic**
+**Avoid non-deterministic**
 ```typescript
 resolve: (user) => Math.random() // Different every time!
 ```
@@ -201,7 +201,7 @@ Return entity + _ml
 
 ## Implementation Status
 
-### ✅ Complete (V1.0)
+### Complete (V1.0)
 - ONNX inference engine
 - Python training pipeline
 - Prisma data extractor
@@ -210,7 +210,7 @@ Return entity + _ml
 - Quality gates
 - Feature processor
 
-### 📋 Planned (Future)
+### Planned (Future)
 - Batch predictions API (`withMLMany`)
 - Model versioning
 - A/B testing

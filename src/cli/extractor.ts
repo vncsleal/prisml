@@ -47,7 +47,7 @@ export class PrismaDataExtractor {
     // Create processor for this model
     const processor = new FeatureProcessor(model);
 
-    console.log(`📊 Extracting training data for ${model.name}...`);
+    console.log(` Extracting training data for ${model.name}...`);
     console.log(`   Target: ${model.target}`);
     console.log(`   Output: ${model.output}`);
 
