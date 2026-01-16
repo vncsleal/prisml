@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { PrisMLModel } from '../core/types';
 import { FeatureProcessor } from './processor';
+import { ModelNotFoundError, ModelLoadError, InferenceNotInitializedError } from '../core/errors';
 
 /**
  * ONNX Runtime Inference Engine
@@ -28,10 +29,7 @@ export class ONNXInferenceEngine {
    */
   async initialize(): Promise<void> {
     if (!fs.existsSync(this.modelPath)) {
-      throw new Error(
-        `Model artifact not found: ${this.modelPath}\n` +
-        `Run 'prisml train' first to generate the model.`
-      );
+      throw new ModelNotFoundError(this.model.name, this.modelPath);
     }
 
     try {
@@ -42,7 +40,7 @@ export class ONNXInferenceEngine {
       
       console.log(`✓ ONNX model loaded: ${this.model.name}`);
     } catch (error: any) {
-      throw new Error(`Failed to load ONNX model: ${error.message}`);
+      throw new ModelLoadError(this.modelPath, error);
     }
   }
 
@@ -54,7 +52,7 @@ export class ONNXInferenceEngine {
    */
   async predict(entity: any): Promise<number> {
     if (!this.session) {
-      throw new Error('Inference engine not initialized. Call .initialize() first.');
+      throw new InferenceNotInitializedError(this.model.name);
     }
 
     // 1. Extract features using the same processor as training

@@ -6,6 +6,12 @@ import { loadDefinitions } from '../loader';
 import { PrisMLModel } from '../../core/types';
 import { detectTrainingBackend, getInstallInstructions } from '../../engine/environment';
 import { PrismaDataExtractor } from '../extractor';
+import { 
+  DatabaseConnectionError, 
+  NoDataError, 
+  TrainingFailedError,
+  PythonNotFoundError 
+} from '../../core/errors';
 
 interface TrainOptions {
   file: string;
@@ -46,7 +52,7 @@ async function trainSingleModel(model: PrisMLModel) {
     console.log(chalk.gray(`   Testing database connection...`));
     const connected = await extractor.testConnection();
     if (!connected) {
-      throw new Error('Could not connect to database. Check DATABASE_URL in .env');
+      throw new DatabaseConnectionError();
     }
     console.log(chalk.green(`   ✔ Database connected`));
 
@@ -55,7 +61,7 @@ async function trainSingleModel(model: PrisMLModel) {
     console.log(chalk.gray(`   Available training samples: ${availableCount}`));
     
     if (availableCount === 0) {
-      throw new Error(`No data found in ${model.target} table`);
+      throw new NoDataError(model.name, model.target);
     }
 
     // 3. Extract training data using new extractor
@@ -149,10 +155,8 @@ async function trainSingleModel(model: PrisMLModel) {
         
       } else if (backend === 'js') {
         // Pure JS fallback (not implemented yet)
-        console.log(chalk.yellow('\n   ⚠️  Pure JS training is not implemented yet.'));
-        console.log(chalk.gray('   Please install Docker or Python to train models:'));
-        console.log(getInstallInstructions('docker'));
-        throw new Error('Training backend not available. Install Docker or Python.');
+        const installInstructions = getInstallInstructions('docker');
+        throw new PythonNotFoundError('docker', installInstructions);
       }
 
       console.log(chalk.green(`   ✔ Training Complete!`));

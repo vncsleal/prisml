@@ -1,4 +1,5 @@
 import { PrisMLModel, FeatureDefinition } from '../core/types';
+import { FeatureExtractionError } from '../core/errors';
 
 export class FeatureProcessor {
   constructor(private model: PrisMLModel) {}
@@ -15,12 +16,27 @@ export class FeatureProcessor {
 
     for (const key of featureKeys) {
       const feature = this.model.features[key];
-      const rawValue = await feature.resolve(entity);
-      const encodedValue = this.encodeValue(rawValue, feature.type);
-      vector.push(encodedValue);
+      try {
+        const rawValue = await feature.resolve(entity);
+        const encodedValue = this.encodeValue(rawValue, feature.type);
+        vector.push(encodedValue);
+      } catch (error: any) {
+        // Extract field name from error or feature definition
+        const fieldName = this.extractFieldName(feature, error);
+        throw new FeatureExtractionError(key, fieldName, error);
+      }
     }
 
     return vector;
+  }
+
+  /**
+   * Attempts to extract the field name from error or feature definition
+   */
+  private extractFieldName(feature: FeatureDefinition, error: Error): string | undefined {
+    // Try to extract field from error message (e.g., "Cannot read property 'x' of undefined")
+    const match = error.message.match(/property '(\w+)'/);
+    return match ? match[1] : undefined;
   }
 
   /**

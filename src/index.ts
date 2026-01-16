@@ -27,3 +27,17 @@ export { FeatureProcessor } from './engine/processor';
 // Environment detection utilities
 export { detectTrainingBackend, getInstallInstructions } from './engine/environment';
 export type { TrainingBackend } from './engine/environment';
+
+// Error classes for better error handling
+export {
+  PrisMLError,
+  DatabaseConnectionError,
+  NoDataError,
+  ModelNotFoundError,
+  FeatureExtractionError,
+  TrainingFailedError,
+  InferenceNotInitializedError,
+  ModelLoadError,
+  InvalidConfigError,
+  PythonNotFoundError
+} from './core/errors';

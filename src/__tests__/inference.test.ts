@@ -54,7 +54,7 @@ describe('ONNXInferenceEngine', () => {
       const engine = new ONNXInferenceEngine(model, '/nonexistent/path');
       
       await expect(engine.initialize()).rejects.toThrow(
-        /Model artifact not found/
+        /Trained model not found/
       );
     });
   });
