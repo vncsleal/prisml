@@ -14,10 +14,14 @@ export type {
   ScalarType 
 } from './core/types';
 
-// Runtime inference engine
+// Prisma Client Extension (Primary API)
+export { prisml } from './extension';
+export type { PrismaClientWithML } from './extension';
+
+// Runtime inference engine (Advanced usage)
 export { ONNXInferenceEngine } from './engine/inference';
 
-// Feature processing
+// Feature processing (Advanced usage)
 export { FeatureProcessor } from './engine/processor';
 
 // Environment detection utilities

@@ -60,17 +60,19 @@ npx prisml train -f ml.ts
 Use the Prisma Client Extension to get predictions instantly:
 
 ```typescript
-const user = await prisma.user.findUnique({
-  where: { id: 1 },
-  include: {
-    _predictions: {
-      churnProbability: true
-    }
-  }
+import { PrismaClient } from '@prisma/client';
+import { prisml } from 'prisml';
+import { ChurnModel } from './ml';
+
+const prisma = new PrismaClient().$extends(prisml([ChurnModel]));
+
+// Fetch user with ML predictions
+const user = await prisma.user.withML({
+  where: { id: 1 }
 });
 
-if (user._predictions.churnProbability > 0.8) {
-  // send email...
+if (user._ml.churnProbability > 0.8) {
+  // send retention email...
 }
 ```
 
@@ -373,8 +375,8 @@ Sub-10ms predictions
 **Key Principle:** Python only runs during `npm run build` / `prisml train`. Your production app has **zero Python dependencies**.
 
 ### Layers
-1.  **Core (Sync):** Deterministic predictive fields (e.g. Churn, Fraud) - ONNX inference
-2.  **Gen (Async):** Generative fields and vector search (Planned V2) - External APIs
+1. **Predictive Fields (Core):** Fast ONNX inference for predictions (churn, fraud, recommendations)
+2. **Generative Fields (Future):** Async AI features with external APIs (embeddings, LLMs)
 
 ---
 
