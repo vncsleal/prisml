@@ -22,7 +22,7 @@
     "docs:serve": "npx serve docs/api",
     "prepublishOnly": "npm run build",
     "docker:build": "./scripts/build-docker.sh",
-    "docker:push": "docker push prisml/trainer:latest && docker push prisml/trainer:1.0.0"
+    "docker:push": "docker push vncsleal/prisml-trainer:latest && docker push vncsleal/prisml-trainer:1.0.0"
   },
   "keywords": [
     "prisma",
