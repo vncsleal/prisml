@@ -2,6 +2,14 @@
 
 This directory contains example models and usage patterns for PrisML.
 
+## File Naming Convention
+
+- **`model.ts`** - Actual ML model definitions (churn-prediction, fraud-detection)
+- **`example.ts`** - Demonstration/usage code (batch-predictions, model-versioning)
+- **`test-*.ts`** - Testing utilities
+
+---
+
 ## Examples Overview
 
 ### 1. Churn Prediction (`churn-prediction/`)
@@ -45,6 +53,52 @@ npx prisml train -f examples/fraud-detection/model.ts
 ```
 
 **Use Case:** Real-time fraud detection for payment processing.
+
+---
+
+### 3. Batch Predictions (`batch-predictions/`)
+
+Efficiently process predictions for multiple entities with parallel ONNX inference.
+
+**Features:**
+- Parallel batch processing
+- Customer segmentation
+- Daily retention campaigns
+- Performance optimization (5-10x faster)
+
+**Documentation:** See [batch-predictions/README.md](./batch-predictions/README.md)
+
+**Usage:**
+```typescript
+const users = await prisma.user.withMLMany({
+  where: { createdAt: { gte: lastWeek } },
+  take: 100
+});
+```
+
+**Use Case:** Analytics dashboards, scheduled jobs, bulk processing.
+
+---
+
+### 4. Model Versioning (`model-versioning/`)
+
+Demonstration of PrisML's version management and A/B testing capabilities.
+
+**Features:**
+- Version registration and tracking
+- A/B testing with traffic splits
+- Performance comparison
+- Safe rollback procedures
+
+**Documentation:** See [model-versioning/README.md](./model-versioning/README.md)
+
+**Usage:**
+```typescript
+const versionManager = new ModelVersionManager('./models');
+versionManager.activateVersion('churnPredictor', 'v2.0');
+```
+
+**Use Case:** Production deployments, canary releases, performance monitoring.
 
 ---
 

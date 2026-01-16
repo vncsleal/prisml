@@ -41,3 +41,7 @@ export {
   InvalidConfigError,
   PythonNotFoundError
 } from './core/errors';
+
+// Model versioning and A/B testing
+export { ModelVersionManager, ABTestingStrategy } from './core/versioning';
+export type { ModelVersion, VersionRegistry } from './core/versioning';

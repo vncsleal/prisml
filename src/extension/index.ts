@@ -24,9 +24,16 @@ interface EngineCache {
  * ```typescript
  * const prisma = new PrismaClient().$extends(prisml([churnModel]));
  * 
- * // Fetch and predict in one call
- * const result = await prisma.user.withML({ where: { id: 1 } });
- * console.log(result._ml.churnProbability);
+ * // Single prediction
+ * const user = await prisma.user.withML({ where: { id: 1 } });
+ * console.log(user._ml.churnProbability);
+ * 
+ * // Batch predictions
+ * const users = await prisma.user.withMLMany({ 
+ *   where: { createdAt: { gte: lastWeek } },
+ *   take: 100
+ * });
+ * users.forEach(u => console.log(u._ml.churnProbability));
  * ```
  */
 export function prisml(models: PrisMLModel[]) {
@@ -81,6 +88,35 @@ export function prisml(models: PrisMLModel[]) {
           ...entity,
           _ml: predictions
         };
+      },
+
+      async withMLMany(args: any) {
+        // @ts-ignore - this context is provided by Prisma
+        const entities = await this.findMany(args);
+        if (!entities || entities.length === 0) return [];
+
+        // Batch predictions for efficiency
+        const results = await Promise.all(
+          entities.map(async (entity: any) => {
+            const predictions: any = {};
+            for (const model of modelList) {
+              try {
+                const engine = await getEngine(model);
+                predictions[model.output] = await engine.predict(entity);
+              } catch (error: any) {
+                console.error(`[PrisML] Batch prediction failed for ${model.output}:`, error.message);
+                predictions[model.output] = null;
+              }
+            }
+
+            return {
+              ...entity,
+              _ml: predictions
+            };
+          })
+        );
+
+        return results;
       }
     };
   }

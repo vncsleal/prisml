@@ -54,6 +54,8 @@ npx prisml train -f ml/churn.ts
 Automatically extracts data from your Prisma database and trains the model.
 
 ### 4. Query
+
+**Single Prediction:**
 ```typescript
 import { PrismaClient } from '@prisma/client';
 import { prisml } from 'prisml';
@@ -68,14 +70,36 @@ if (user._ml.churnProbability > 0.8) {
 }
 ```
 
+**Batch Predictions:**
+```typescript
+const users = await prisma.user.withMLMany({
+  where: { createdAt: { gte: lastWeek } },
+  take: 100
+});
+
+users.forEach(user => {
+  if (user._ml.churnProbability > 0.7) {
+    console.log(`At-risk user: ${user.email}`);
+  }
+});
+```
+
 ## Key Features
 
+### Core Features
 - **Prisma-Native** - Auto-extracts training data from your database
 - **Type-Safe** - Features defined in TypeScript
 - **Zero-Config** - Docker handles Python automatically
 - **Quality Gates** - Build fails if accuracy < threshold
 - **Fast Inference** - <10ms predictions with ONNX
 - **No Runtime Deps** - Pure Node.js in production
+
+### Advanced Features (V1.1)
+- **Batch Predictions** - Process multiple entities efficiently with `withMLMany()`
+- **Model Versioning** - Track, compare, and manage model versions
+- **A/B Testing** - Test new models safely with traffic splitting
+- **Rollback Support** - Instantly revert to previous versions
+- **Performance Tracking** - Monitor metrics across versions
 
 ## Documentation
 
@@ -89,6 +113,8 @@ if (user._ml.churnProbability > 0.8) {
 
 - **[Churn Prediction](./examples/churn-prediction/)** - Basic classification example
 - **[Fraud Detection](./examples/fraud-detection/)** - Advanced e-commerce fraud model
+- **[Batch Predictions](./examples/batch-predictions/)** - Efficient bulk processing
+- **[Model Versioning](./examples/model-versioning/)** - Version management and A/B testing
 - **[Test Files](./examples/)** - Extension and inference testing utilities
 
 ## Training Environment
