@@ -165,10 +165,12 @@ export function validateTrainingModelDefinition(model: ModelDefinition): void {
   }
 
   const algorithmName = model.algorithm?.name ?? 'automl';
+  const supportedAlgorithmsList =
+    Array.from(SUPPORTED_ALGORITHMS).sort().join(', ') || 'none';
   if (!SUPPORTED_ALGORITHMS.has(algorithmName)) {
     throw new ModelDefinitionError(
       model.name,
-      `Unsupported algorithm "${algorithmName}". Supported algorithms: automl, linear, tree, forest, gbm.`
+      `Unsupported algorithm "${algorithmName}". Supported algorithms: ${supportedAlgorithmsList}.`
     );
   }
 

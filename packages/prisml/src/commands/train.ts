@@ -260,7 +260,7 @@ export const trainCommand = {
 
       spinner.succeed(`Loaded ${modelDefinitions.length} model definition(s)`);
 
-      // 3. Preflight validate model definitions before touching Python or Prisma.
+      // 3. Preflight validate model definitions before invoking Python or instantiating PrismaClient / extracting data via Prisma.
       spinner.start('Running preflight validation...');
       for (const model of modelDefinitions) {
         validateTrainingModelDefinition(model);
