@@ -74,19 +74,11 @@ export const userLTVModel = defineModel<User>({
       return Math.floor(days);
     },
 
-    // Categorical: converted to label-encoded integer
+    // Categorical: one-hot encoded by default
     source: (user) => user.signupSource,
 
     // Boolean: converted to 0/1
     isPremium: (user) => user.plan === 'premium',
-  },
-  algorithm: {
-    name: 'forest',
-    version: '1.0.0',
-    hyperparameters: {
-      nEstimators: 100,
-      maxDepth: 10,
-    },
   },
   qualityGates: [
     {
@@ -114,11 +106,11 @@ This:
 4. Fits the feature contract from the training split
 5. Invokes Python backend
 6. Evaluates quality gates
-7. Exports `model.onnx` + `model.metadata.json`
+7. Exports `<modelName>.onnx` + `<modelName>.metadata.json` into `.prisml/`
 
 Artifacts are **immutable** and intended to be **committed to git**.
 
-Encoding categories, imputation values, and numeric scaling statistics are part of the compiled feature contract. They are fit during training and stored in `model.metadata.json` so runtime prediction can reuse the exact same contract.
+Encoding categories, imputation values, and numeric scaling statistics are part of the compiled feature contract. They are fit during training and stored in `<modelName>.metadata.json` so runtime prediction can reuse the exact same contract.
 
 ### 2.5. Validate Schema Contract
 
@@ -226,33 +218,27 @@ processed: (user) => processValue(user.value) // NOT EXTRACTABLE
 
 ## Categorical Features
 
-For string features, specify encoding strategy:
+String features default to one-hot encoding, with training-time categories stored in metadata:
 
 ```typescript
 features: {
   region: (user) => user.country, // 'US', 'EU', 'APAC'
 }
 
-// In encoding (auto-discovered at training time):
+// In metadata (auto-discovered at training time):
 encoding: {
   region: {
-    type: 'label',
-    mapping: { 'US': 0, 'EU': 1, 'APAC': 2 }
+    type: 'onehot',
+    categories: ['APAC', 'EU', 'US']
   }
 }
 ```
 
-**Label encoding:**
+**One-hot encoding:**
 - Categories sorted alphabetically
-- Assigned integer codes 0, 1, 2, ...
-- Mapping serialized in metadata
-- Unseen categories at runtime → hard error
-
-**Hash encoding:**
-- Categories hashed (not stored)
-- Deterministic mapping
-- Slightly lossy (collisions possible)
-- No mapping needed in metadata
+- Category list serialized in metadata
+- Unseen categories at runtime → all-zero columns
+- No false ordinal relationship between categories
 
 ## Null Handling
 
