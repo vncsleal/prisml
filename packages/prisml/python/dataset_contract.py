@@ -18,8 +18,20 @@ def validate_dataset(dataset: Dict[str, Any]) -> None:
     y_train = dataset["y_train"]
     y_test = dataset["y_test"]
 
+    if not isinstance(x_train, list) or not isinstance(x_test, list):
+        raise ValueError("X_train and X_test must be lists of rows")
+
+    if not isinstance(y_train, list) or not isinstance(y_test, list):
+        raise ValueError("y_train and y_test must be lists")
+
     if not x_train or not x_test:
         raise ValueError("Dataset payload must include at least one train row and one test row")
+
+    if any(not isinstance(row, list) for row in x_train):
+        raise ValueError("X_train must be a list of lists")
+
+    if any(not isinstance(row, list) for row in x_test):
+        raise ValueError("X_test must be a list of lists")
 
     train_width = len(x_train[0])
     test_width = len(x_test[0])

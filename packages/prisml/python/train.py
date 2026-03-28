@@ -5,6 +5,7 @@ FLAML AutoML (default) with scikit-learn fallback for explicit algorithm overrid
 """
 
 import argparse
+import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
