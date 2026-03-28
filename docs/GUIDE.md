@@ -111,11 +111,14 @@ This:
 1. Loads Prisma schema
 2. Validates model definitions
 3. Extracts training data via Prisma
-4. Invokes Python backend
-5. Evaluates quality gates
-6. Exports `model.onnx` + `model.metadata.json`
+4. Fits the feature contract from the training split
+5. Invokes Python backend
+6. Evaluates quality gates
+7. Exports `model.onnx` + `model.metadata.json`
 
 Artifacts are **immutable** and intended to be **committed to git**.
+
+Encoding categories, imputation values, and numeric scaling statistics are part of the compiled feature contract. They are fit during training and stored in `model.metadata.json` so runtime prediction can reuse the exact same contract.
 
 ### 2.5. Validate Schema Contract
 
@@ -158,7 +161,7 @@ features: {
   // Boolean → encoded as 0/1
   isActive: (user) => user.lastActiveAt > new Date(Date.now() - 30 * 86400000),
 
-  // String → categorical encoding (label or hash)
+  // String → categorical encoding (one-hot by default)
   region: (user) => user.country,
 
   // Date → converted to Unix timestamp
