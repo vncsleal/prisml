@@ -146,8 +146,12 @@ export function splitTrainingRows(
   seed: number,
   testFraction: number
 ): { trainRows: TrainingRow[]; testRows: TrainingRow[] } {
+  if (rows.length < 2) {
+    throw new ConfigurationError('At least 2 extracted rows are required to create a train/test split');
+  }
+
   const indices = seededShuffle([...Array(rows.length).keys()], seed);
-  const testSize = Math.max(1, Math.floor(rows.length * testFraction));
+  const testSize = Math.min(rows.length - 1, Math.max(1, Math.floor(rows.length * testFraction)));
   const testIndices = new Set(indices.slice(0, testSize));
 
   const trainRows: TrainingRow[] = [];
@@ -191,6 +195,11 @@ export function fitTrainingContract(
       const categories = Array.from(
         new Set(trainValues.filter((value): value is string => typeof value === 'string'))
       ).sort();
+      if (categories.length === 0) {
+        throw new ConfigurationError(
+          `Model "${modelName}", feature "${name}": cannot fit onehot encoding from training data with no observed categories`
+        );
+      }
       stat.encoding = { type: 'onehot', categories };
       const mode = computeStringMode(trainValues);
       if (mode !== undefined) {
@@ -206,6 +215,9 @@ export function fitTrainingContract(
         const std = Math.sqrt(variance) || 1;
         stat.imputation = { strategy: 'constant', value: mean };
         stat.scaling = { strategy: 'standard', mean, std };
+      } else {
+        stat.imputation = { strategy: 'constant', value: 0 };
+        stat.scaling = { strategy: 'standard', mean: 0, std: 1 };
       }
     }
 
@@ -213,6 +225,8 @@ export function fitTrainingContract(
       const mode = computeBooleanMode(trainValues);
       if (mode !== undefined) {
         stat.imputation = { strategy: 'constant', value: mode ? 1 : 0 };
+      } else {
+        stat.imputation = { strategy: 'constant', value: 0 };
       }
     }
 

@@ -39,7 +39,6 @@ import {
   fitTrainingContract,
   splitTrainingRows,
   type TrainingRow,
-  type TrainingFeatureType,
 } from '../training_contract';
 
 type ResolvedModel = ModelDefinition & {
@@ -253,7 +252,7 @@ export const trainCommand = {
           return {
             modelName: model.modelName,
             path: `${model.modelName}.${stat.name}`,
-            scalarType: stat.type as TrainingFeatureType,
+            scalarType: stat.type,
             nullable: stat.hasNulls,
             encoding: stat.encoding,
             extractable,

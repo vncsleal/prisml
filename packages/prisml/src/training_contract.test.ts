@@ -20,6 +20,14 @@ describe('splitTrainingRows', () => {
     expect(a.testRows).toHaveLength(2);
     expect(a.trainRows).toHaveLength(8);
   });
+
+  it('rejects datasets that are too small to split', () => {
+    const rows: TrainingRow[] = [{ features: { id: 1 }, label: 1 }];
+
+    expect(() => splitTrainingRows(rows, 42, 0.2)).toThrow(
+      /At least 2 extracted rows are required/
+    );
+  });
 });
 
 describe('fitTrainingContract', () => {
@@ -100,7 +108,7 @@ describe('fitTrainingContract', () => {
     });
   });
 
-  it('keeps sparse nullable numeric features from failing when train rows are null-only', () => {
+  it('uses safe numeric defaults when train rows are null-only', () => {
     const trainRows: TrainingRow[] = [
       { features: { score: null }, label: 0 },
       { features: { score: undefined }, label: 1 },
@@ -113,8 +121,30 @@ describe('fitTrainingContract', () => {
     const contract = fitTrainingContract('ltv', ['score'], trainRows, allRows);
 
     expect(contract.featureStats[0].type).toBe('number');
-    expect(contract.imputations.score).toBeUndefined();
-    expect(contract.scalings.score).toBeUndefined();
+    expect(contract.imputations.score).toEqual({
+      strategy: 'constant',
+      value: 0,
+    });
+    expect(contract.scalings.score).toEqual({
+      strategy: 'standard',
+      mean: 0,
+      std: 1,
+    });
+  });
+
+  it('rejects string features with no observed train categories', () => {
+    const trainRows: TrainingRow[] = [
+      { features: { plan: null }, label: 0 },
+      { features: { plan: undefined }, label: 1 },
+    ];
+    const allRows: TrainingRow[] = [
+      ...trainRows,
+      { features: { plan: 'pro' }, label: 1 },
+    ];
+
+    expect(() => fitTrainingContract('churnRisk', ['plan'], trainRows, allRows)).toThrow(
+      /cannot fit onehot encoding from training data with no observed categories/
+    );
   });
 });
 
